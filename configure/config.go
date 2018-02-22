@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/GoLive/utils"
+	"github.com/xxlixin1993/CacheGo/utils"
 )
 
 // Initialize configure
@@ -20,7 +20,7 @@ func InitConfig(filePath string, mod string) error {
 	}
 
 	appConfig = &Config{}
-	err := appConfig.parse(filePath)
+	err := appConfig.parse(filePath, mod)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (c *Config) Strings(key string) []string {
 	return strings.Split(v, ",")
 }
 
-func (c *Config) parse(fileName string) error {
+func (c *Config) parse(fileName string, mod string) error {
 	c.Lock()
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -117,14 +117,17 @@ func (c *Config) parse(fileName string) error {
 			continue
 		case bytes.HasPrefix(line, []byte{'['}) && bytes.HasSuffix(line, []byte{']'}):
 			section = string(line[1 : len(line)-1])
+			continue
 		default:
-			optionVal := bytes.SplitN(line, []byte{'='}, 2)
-			if len(optionVal) != 2 {
-				return fmt.Errorf("parse %s the content error : line %d , %s = ? ", fileName, lineNum, optionVal[0])
+			if section == mod {
+				optionVal := bytes.SplitN(line, []byte{'='}, 2)
+				if len(optionVal) != 2 {
+					return fmt.Errorf("parse %s the content error : line %d , %s = ? ", fileName, lineNum, optionVal[0])
+				}
+				option := bytes.TrimSpace(optionVal[0])
+				value := bytes.TrimSpace(optionVal[1])
+				c.AddConfig(section, string(option), string(value))
 			}
-			option := bytes.TrimSpace(optionVal[0])
-			value := bytes.TrimSpace(optionVal[1])
-			c.AddConfig(section, string(option), string(value))
 		}
 	}
 

@@ -4,7 +4,7 @@ import "sync"
 
 // Log message level
 const (
-	KLevelFatal = iota
+	KLevelFatal    = iota
 	KLevelError
 	KLevelWarnning
 	KLevelNotice
@@ -37,6 +37,7 @@ type ILog interface {
 // Log core program
 type LogBase struct {
 	mu      sync.Mutex
+	wg      *sync.WaitGroup
 	handle  ILog
 	message chan []byte
 	skip    int

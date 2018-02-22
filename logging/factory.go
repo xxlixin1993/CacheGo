@@ -6,8 +6,9 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/GoLive/configure"
-	"github.com/GoLive/utils"
+	"github.com/xxlixin1993/CacheGo/configure"
+	"github.com/xxlixin1993/CacheGo/utils"
+	"sync"
 )
 
 // Initialize Log
@@ -20,6 +21,7 @@ func InitLog() error {
 		return err
 	}
 
+	logger.wg.Add(1)
 	go logger.Run()
 
 	SetLogger(logger)
@@ -32,6 +34,7 @@ func getLogger(outputType string, level int) (*LogBase, error) {
 	case KOutputStdout:
 		return &LogBase{
 			handle:  NewStdoutLog(),
+			wg:      &sync.WaitGroup{},
 			message: make(chan []byte, 1000),
 			skip:    3,
 			level:   level,
@@ -42,6 +45,11 @@ func getLogger(outputType string, level int) (*LogBase, error) {
 	default:
 		return nil, errors.New(configure.KUnknownTypeMsg)
 	}
+}
+
+func WaitLog() {
+	close(loggerInstance.message)
+	loggerInstance.wg.Wait()
 }
 
 func SetLogger(logger *LogBase) {
@@ -89,7 +97,11 @@ func Fatal(args ...interface{}) {
 
 func (l *LogBase) Run() {
 	for {
-		msg := <-l.message
+		msg, ok := <-l.message
+		if !ok {
+			l.wg.Done()
+			break
+		}
 		err := l.handle.OutputLogMsg(msg)
 		if err != nil {
 			fmt.Printf("Log: Output handle fail, err:%v\n", err.Error())
@@ -97,26 +109,20 @@ func (l *LogBase) Run() {
 	}
 }
 
-func (l *LogBase) Output(configLevel int, msg string) {
+func (l *LogBase) Output(nowLevel int, msg string) {
 	now := utils.GetMicTimeFormat()
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if l.level <= configLevel {
-		msg = fmt.Sprintf("[%s] [%s] %s\n", LevelName[configLevel], now, msg)
-	}
-
-	// Debug mod show
-	if configLevel == KLevelDebug {
+	if nowLevel <= l.level {
 		_, file, line, ok := runtime.Caller(l.skip)
 		if !ok {
 			file = "???"
 			line = 0
 		}
 		_, filename := path.Split(file)
-		msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[l.level], now, filename, line, msg)
-
+		msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[nowLevel], now, filename, line, msg)
 	}
 
 	l.message <- []byte(msg)

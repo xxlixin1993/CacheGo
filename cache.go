@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"time"
+	"os/signal"
+	"syscall"
 
-	"github.com/GoLive/configure"
-	"github.com/GoLive/logging"
-	"net"
+	"github.com/xxlixin1993/CacheGo/logging"
+	"github.com/xxlixin1993/CacheGo/configure"
 )
 
 const (
@@ -18,10 +18,7 @@ const (
 
 func main() {
 	initFrame()
-	// TODO 接受信号判断退出
-
-	time.Sleep(time.Second * 2)
-
+	waitSignal()
 }
 
 func initFrame() {
@@ -52,4 +49,30 @@ func initFrame() {
 	}
 
 	logging.Debug("test log")
+}
+
+// Wait signal
+func waitSignal() {
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan)
+
+	sig := <-sigChan
+
+	logging.Trace("signal: ", sig)
+
+	switch sig {
+	case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
+		// TODO Exit smoothly
+		logging.Trace("exit...")
+	case syscall.SIGUSR1:
+		logging.Trace("catch the signal SIGUSR1")
+	default:
+		logging.Trace("signal do not know")
+	}
+
+	stop()
+}
+
+func stop(){
+	logging.WaitLog()
 }
