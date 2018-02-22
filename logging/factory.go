@@ -8,7 +8,6 @@ import (
 
 	"github.com/xxlixin1993/CacheGo/configure"
 	"github.com/xxlixin1993/CacheGo/utils"
-	"sync"
 )
 
 // Initialize Log
@@ -21,7 +20,7 @@ func InitLog() error {
 		return err
 	}
 
-	logger.wg.Add(1)
+	logger.Add(1)
 	go logger.Run()
 
 	SetLogger(logger)
@@ -34,7 +33,6 @@ func getLogger(outputType string, level int) (*LogBase, error) {
 	case KOutputStdout:
 		return &LogBase{
 			handle:  NewStdoutLog(),
-			wg:      &sync.WaitGroup{},
 			message: make(chan []byte, 1000),
 			skip:    3,
 			level:   level,
@@ -49,7 +47,7 @@ func getLogger(outputType string, level int) (*LogBase, error) {
 
 func WaitLog() {
 	close(loggerInstance.message)
-	loggerInstance.wg.Wait()
+	loggerInstance.Wait()
 }
 
 func SetLogger(logger *LogBase) {
@@ -99,7 +97,7 @@ func (l *LogBase) Run() {
 	for {
 		msg, ok := <-l.message
 		if !ok {
-			l.wg.Done()
+			l.Done()
 			break
 		}
 		err := l.handle.OutputLogMsg(msg)

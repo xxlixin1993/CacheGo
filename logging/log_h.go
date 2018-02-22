@@ -37,7 +37,7 @@ type ILog interface {
 // Log core program
 type LogBase struct {
 	mu      sync.Mutex
-	wg      *sync.WaitGroup
+	sync.WaitGroup
 	handle  ILog
 	message chan []byte
 	skip    int
