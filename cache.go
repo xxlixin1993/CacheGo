@@ -4,12 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 	"os/signal"
+	"runtime"
 	"syscall"
 
-	"github.com/xxlixin1993/CacheGo/logging"
 	"github.com/xxlixin1993/CacheGo/configure"
+	"github.com/xxlixin1993/CacheGo/logging"
 )
 
 const (
@@ -73,6 +73,6 @@ func waitSignal() {
 	stop()
 }
 
-func stop(){
+func stop() {
 	logging.WaitLog()
 }
