@@ -10,6 +10,7 @@ import (
 
 	"github.com/xxlixin1993/CacheGo/configure"
 	"github.com/xxlixin1993/CacheGo/logging"
+	"github.com/xxlixin1993/CacheGo/server"
 )
 
 const (
@@ -18,9 +19,12 @@ const (
 
 func main() {
 	initFrame()
+	startServer()
 	waitSignal()
+	stop()
 }
 
+// Initialize framework
 func initFrame() {
 	// Parsing configuration environment
 	runMode := flag.String("m", "local", "Use -m <config mode>")
@@ -37,18 +41,32 @@ func initFrame() {
 	// Initialize configure
 	configErr := configure.InitConfig(*configFile, *runMode)
 	if configErr != nil {
-		fmt.Printf("Initialize Log error : %s", configErr)
+		fmt.Printf("Initialize Configure error : %s", configErr)
 		os.Exit(configure.KInitConfigError)
 	}
 
-	// Initialize Log
-	LogErr := logging.InitLog()
-	if LogErr != nil {
-		fmt.Printf("Initialize Log error : %s", LogErr)
+	// Initialize log
+	logErr := logging.InitLog()
+	if logErr != nil {
+		fmt.Printf("Initialize log error : %s", logErr)
 		os.Exit(configure.KInitLogError)
 	}
 
-	logging.Debug("test log")
+	logging.Trace("test log")
+}
+
+func startServer() {
+	server.InitTcpServer()
+	go startTcpServer()
+}
+
+// Start tcp server
+func startTcpServer() {
+	serverErr := server.StartTcpServer()
+	if serverErr != nil {
+		fmt.Printf("Initialize server error : %s", serverErr)
+		os.Exit(configure.KInitTcpServerError)
+	}
 }
 
 // Wait signal
@@ -70,9 +88,9 @@ func waitSignal() {
 		logging.Trace("signal do not know")
 	}
 
-	stop()
 }
 
+// Stop the program
 func stop() {
 	logging.WaitLog()
 }

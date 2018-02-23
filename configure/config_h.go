@@ -24,6 +24,7 @@ type Config struct {
 const (
 	KInitConfigError = iota + 1
 	KInitLogError
+	KInitTcpServerError
 )
 
 // Error message

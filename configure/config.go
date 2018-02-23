@@ -28,62 +28,7 @@ func InitConfig(filePath string, mod string) error {
 	return nil
 }
 
-func DefaultString(key string, defaultVal string) string {
-	if v := appConfig.String(key); v != "" {
-		return v
-	}
-	return defaultVal
-}
-
-func DefaultStrings(key string, defaultVal []string) []string {
-	if v := appConfig.Strings(key); len(v) != 0 {
-		return v
-	}
-	return defaultVal
-}
-
-func DefaultBool(key string, defaultVal bool) bool {
-	if b, err := appConfig.Bool(key); err == nil {
-		return b
-	}
-	return defaultVal
-}
-
-func DefaultInt(key string, defaultVal int) int {
-	if b, err := appConfig.Int(key); err == nil {
-		return b
-	}
-	return defaultVal
-}
-
-func (c *Config) Bool(key string) (bool, error) {
-	return strconv.ParseBool(c.get(key))
-}
-
-func (c *Config) Int(key string) (int, error) {
-	return strconv.Atoi(c.get(key))
-}
-
-func (c *Config) Int64(key string) (int64, error) {
-	return strconv.ParseInt(c.get(key), 10, 64)
-}
-
-func (c *Config) Float64(key string) (float64, error) {
-	return strconv.ParseFloat(c.get(key), 64)
-}
-
-func (c *Config) String(key string) string {
-	return c.get(key)
-}
-
-func (c *Config) Strings(key string) []string {
-	v := c.get(key)
-	if v == "" {
-		return nil
-	}
-	return strings.Split(v, ",")
-}
-
+// Parse the configuration file
 func (c *Config) parse(fileName string, mod string) error {
 	c.Lock()
 	f, err := os.Open(fileName)
@@ -154,7 +99,7 @@ func (c *Config) AddConfig(section string, option string, value string) bool {
 	return !ok
 }
 
-// section.key or key
+// Get section.key or key
 func (c *Config) get(key string) string {
 	var (
 		section string
@@ -176,4 +121,60 @@ func (c *Config) get(key string) string {
 	}
 
 	return ""
+}
+
+func DefaultString(key string, defaultVal string) string {
+	if v := appConfig.String(key); v != "" {
+		return v
+	}
+	return defaultVal
+}
+
+func DefaultStrings(key string, defaultVal []string) []string {
+	if v := appConfig.Strings(key); len(v) != 0 {
+		return v
+	}
+	return defaultVal
+}
+
+func DefaultBool(key string, defaultVal bool) bool {
+	if b, err := appConfig.Bool(key); err == nil {
+		return b
+	}
+	return defaultVal
+}
+
+func DefaultInt(key string, defaultVal int) int {
+	if b, err := appConfig.Int(key); err == nil {
+		return b
+	}
+	return defaultVal
+}
+
+func (c *Config) Bool(key string) (bool, error) {
+	return strconv.ParseBool(c.get(key))
+}
+
+func (c *Config) Int(key string) (int, error) {
+	return strconv.Atoi(c.get(key))
+}
+
+func (c *Config) Int64(key string) (int64, error) {
+	return strconv.ParseInt(c.get(key), 10, 64)
+}
+
+func (c *Config) Float64(key string) (float64, error) {
+	return strconv.ParseFloat(c.get(key), 64)
+}
+
+func (c *Config) String(key string) string {
+	return c.get(key)
+}
+
+func (c *Config) Strings(key string) []string {
+	v := c.get(key)
+	if v == "" {
+		return nil
+	}
+	return strings.Split(v, ",")
 }

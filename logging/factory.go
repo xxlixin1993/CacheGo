@@ -15,7 +15,7 @@ func InitLog() error {
 	outputType := configure.DefaultString("log.type", KOutputStdout)
 	level := configure.DefaultInt("log.level", KLevelDebug)
 
-	logger, err := getLogger(outputType, level)
+	logger, err := createLogger(outputType, level)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,8 @@ func InitLog() error {
 	return err
 }
 
-func getLogger(outputType string, level int) (*LogBase, error) {
+// Create Logger instance
+func createLogger(outputType string, level int) (*LogBase, error) {
 	switch outputType {
 	case KOutputStdout:
 		return &LogBase{
@@ -45,17 +46,55 @@ func getLogger(outputType string, level int) (*LogBase, error) {
 	}
 }
 
+// Wait log goroutine stop, when main exit.
 func WaitLog() {
 	close(loggerInstance.message)
 	loggerInstance.Wait()
 }
 
+// Save Logger instance
 func SetLogger(logger *LogBase) {
 	loggerInstance = logger
 }
 
+// Get Logger instance
 func GetLogger() *LogBase {
 	return loggerInstance
+}
+
+// Receive information, wait information
+func (l *LogBase) Run() {
+	for {
+		msg, ok := <-l.message
+		if !ok {
+			l.Done()
+			break
+		}
+		err := l.handle.OutputLogMsg(msg)
+		if err != nil {
+			fmt.Printf("Log: Output handle fail, err:%v\n", err.Error())
+		}
+	}
+}
+
+// Output message
+func (l *LogBase) Output(nowLevel int, msg string) {
+	now := utils.GetMicTimeFormat()
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if nowLevel <= l.level {
+		_, file, line, ok := runtime.Caller(l.skip)
+		if !ok {
+			file = "???"
+			line = 0
+		}
+		_, filename := path.Split(file)
+		msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[nowLevel], now, filename, line, msg)
+	}
+
+	l.message <- []byte(msg)
 }
 
 func Debug(args ...interface{}) {
@@ -78,7 +117,7 @@ func Notice(args ...interface{}) {
 	GetLogger().Output(KLevelNotice, msg)
 }
 
-func Warnning(args ...interface{}) {
+func Warning(args ...interface{}) {
 	msg := fmt.Sprint(args...)
 	GetLogger().Output(KLevelWarnning, msg)
 }
@@ -91,37 +130,4 @@ func Error(args ...interface{}) {
 func Fatal(args ...interface{}) {
 	msg := fmt.Sprint(args...)
 	GetLogger().Output(KLevelFatal, msg)
-}
-
-func (l *LogBase) Run() {
-	for {
-		msg, ok := <-l.message
-		if !ok {
-			l.Done()
-			break
-		}
-		err := l.handle.OutputLogMsg(msg)
-		if err != nil {
-			fmt.Printf("Log: Output handle fail, err:%v\n", err.Error())
-		}
-	}
-}
-
-func (l *LogBase) Output(nowLevel int, msg string) {
-	now := utils.GetMicTimeFormat()
-
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if nowLevel <= l.level {
-		_, file, line, ok := runtime.Caller(l.skip)
-		if !ok {
-			file = "???"
-			line = 0
-		}
-		_, filename := path.Split(file)
-		msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[nowLevel], now, filename, line, msg)
-	}
-
-	l.message <- []byte(msg)
 }

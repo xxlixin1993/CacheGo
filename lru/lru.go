@@ -74,7 +74,7 @@ func (c *Cache) Delete(key string) bool {
 		c.ll.Remove(le)
 		delete(c.cache, pEntry.key)
 	} else {
-		logging.Warnning("[LRU] Delete: don not have key: ", key)
+		logging.Warning("[LRU] Delete: don not have key: ", key)
 	}
 
 	return true

@@ -10,6 +10,7 @@ func NewStdoutLog() ILog {
 	return stdout
 }
 
+// Init stdout
 func (s *LogStdout) Init(config interface{}) error {
 	return nil
 }
