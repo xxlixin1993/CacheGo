@@ -56,7 +56,7 @@ func initFrame() {
 		os.Exit(configure.KInitLogError)
 	}
 
-	logging.Trace("test log")
+	logging.Trace("Initialized frame")
 }
 
 func startServer() {

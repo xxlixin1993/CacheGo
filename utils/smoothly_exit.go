@@ -6,24 +6,6 @@ import (
 	"strings"
 )
 
-var exitList *ExitList
-
-type ExitInterface interface {
-	// get module name
-	GetModuleName() string
-
-	// exit module function
-	Stop() error
-}
-
-type ExitList struct {
-	// exit list
-	ll *list.List
-
-	// exit module name
-	module map[string]*list.Element
-}
-
 // Initialize exit list.
 func InitExitList() {
 	exitList = &ExitList{
