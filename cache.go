@@ -96,5 +96,5 @@ func waitSignal() {
 
 // Stop the program
 func stop() {
-	logging.WaitLog()
+	utils.GetExitList().Stop()
 }

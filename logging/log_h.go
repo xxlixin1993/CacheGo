@@ -13,6 +13,9 @@ const (
 	KLevelDebug
 )
 
+// Log module name
+const KLogModuleName = "logModule"
+
 // Log output message level abbreviation
 var LevelName = [7]string{"F", "E", "W", "N", "I", "T", "D"}
 

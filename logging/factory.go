@@ -20,41 +20,42 @@ func InitLog() error {
 		return err
 	}
 
-	logger.Add(1)
+	utils.GetExitList().Pop(logger)
+
 	go logger.Run()
 
-	SetLogger(logger)
-
 	return err
+}
+
+// Implement ExitInterface
+func (l *LogBase) GetModuleName() string {
+	return KLogModuleName
+}
+
+// Implement ExitInterface
+func (l *LogBase) Stop() error {
+	close(loggerInstance.message)
+	loggerInstance.Wait()
+	return nil
 }
 
 // Create Logger instance
 func createLogger(outputType string, level int) (*LogBase, error) {
 	switch outputType {
 	case KOutputStdout:
-		return &LogBase{
+		loggerInstance = &LogBase{
 			handle:  NewStdoutLog(),
 			message: make(chan []byte, 1000),
 			skip:    3,
 			level:   level,
-		}, nil
+		}
+		return loggerInstance, nil
 	case KOutputFile:
 		// TODO
 		return nil, errors.New("TODO not supported")
 	default:
 		return nil, errors.New(configure.KUnknownTypeMsg)
 	}
-}
-
-// Wait log goroutine stop, when main exit.
-func WaitLog() {
-	close(loggerInstance.message)
-	loggerInstance.Wait()
-}
-
-// Save Logger instance
-func SetLogger(logger *LogBase) {
-	loggerInstance = logger
 }
 
 // Get Logger instance
@@ -64,6 +65,8 @@ func GetLogger() *LogBase {
 
 // Receive information, wait information
 func (l *LogBase) Run() {
+	loggerInstance.Add(1)
+
 	for {
 		msg, ok := <-l.message
 		if !ok {

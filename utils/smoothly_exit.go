@@ -50,12 +50,14 @@ func (el *ExitList) Stop() error {
 
 	errInfo := make([]string, 0)
 	for i := 0; i < length; i++ {
-		element := el.ll.Back()
+		element := el.ll.Front()
 		exitElement := element.Value.(ExitInterface)
 
 		if err := exitElement.Stop(); err != nil {
 			errInfo = append(errInfo, "[Smoothly Exit]: Stop this module("+exitElement.GetModuleName()+")"+err.Error())
 		}
+
+		el.ll.Remove(element)
 	}
 
 	if len(errInfo) > 0 {
