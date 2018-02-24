@@ -165,6 +165,6 @@ func Fatal(args ...interface{}) {
 }
 
 func FatalF(format string, a ...interface{}) {
-	msg := fmt.Sprint(args...)
+	msg := fmt.Sprintf(format, a)
 	GetLogger().Output(KLevelFatal, msg)
 }
