@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/xxlixin1993/CacheGo/configure"
-	"github.com/xxlixin1993/CacheGo/logging"
 	"github.com/xxlixin1993/CacheGo/utils"
 )
 
