@@ -11,6 +11,7 @@ import (
 	"github.com/xxlixin1993/CacheGo/configure"
 	"github.com/xxlixin1993/CacheGo/logging"
 	"github.com/xxlixin1993/CacheGo/server"
+	"github.com/xxlixin1993/CacheGo/utils"
 )
 
 const (
@@ -37,6 +38,9 @@ func initFrame() {
 		fmt.Println("Version", KVersion, runtime.GOOS+"/"+runtime.GOARCH)
 		os.Exit(0)
 	}
+
+	// Initialize exitList
+	utils.InitExitList()
 
 	// Initialize configure
 	configErr := configure.InitConfig(*configFile, *runMode)
