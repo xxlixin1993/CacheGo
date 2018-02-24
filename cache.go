@@ -59,17 +59,12 @@ func initFrame() {
 	logging.Trace("Initialized frame")
 }
 
+// Start server
 func startServer() {
-	server.InitTcpServer()
-	go startTcpServer()
-}
-
-// Start tcp server
-func startTcpServer() {
-	serverErr := server.StartTcpServer()
+	serverErr := server.StartServer()
 	if serverErr != nil {
-		fmt.Printf("Initialize server error : %s", serverErr)
-		os.Exit(configure.KInitTcpServerError)
+		fmt.Printf("Start server error : %s", serverErr)
+		os.Exit(configure.KInitSeverError)
 	}
 }
 

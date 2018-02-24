@@ -25,6 +25,7 @@ const (
 	KInitConfigError = iota + 1
 	KInitLogError
 	KInitTcpServerError
+	KInitSeverError
 )
 
 // Error message
