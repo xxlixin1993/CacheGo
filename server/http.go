@@ -1,11 +1,14 @@
 package server
 
 import (
+	"context"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/xxlixin1993/CacheGo/configure"
-	"io"
+	"github.com/xxlixin1993/CacheGo/logging"
+	"github.com/xxlixin1993/CacheGo/utils"
 )
 
 // Initialize http server
@@ -27,6 +30,9 @@ func initHttpServer() error {
 			WriteTimeout: time.Duration(writeTimeout) * time.Second,
 		},
 	}
+
+	// graceful exit
+	utils.GetExitList().Pop(httpServer)
 
 	return nil
 }
@@ -51,6 +57,19 @@ func getServerMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", status)
 	return mux
+}
+
+// Implement ExitInterface
+func (h *HttpServer) GetModuleName() string {
+	return KHttpServerModuleName
+}
+
+// Implement ExitInterface
+func (h *HttpServer) Stop() error {
+	quitTimeout := configure.DefaultInt("http.quitTimeout", 30)
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(quitTimeout)*time.Second)
+
+	return httpServer.server.Shutdown(ctx)
 }
 
 // Get CacheGo status

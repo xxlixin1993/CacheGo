@@ -20,7 +20,7 @@ const (
 
 func main() {
 	initFrame()
-	startServer()
+	runServer()
 	waitSignal()
 	stop()
 }
@@ -57,6 +57,11 @@ func initFrame() {
 	}
 
 	logging.Trace("Initialized frame")
+}
+
+// Run server
+func runServer() {
+	go startServer()
 }
 
 // Start server

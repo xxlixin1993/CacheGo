@@ -6,6 +6,8 @@ import (
 	"sync"
 )
 
+const KHttpServerModuleName = "httpServerModule"
+
 var httpServer *HttpServer
 
 type TcpServer struct {

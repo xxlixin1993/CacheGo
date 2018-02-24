@@ -20,6 +20,7 @@ func InitLog() error {
 		return err
 	}
 
+	// graceful exit
 	utils.GetExitList().Pop(logger)
 
 	go logger.Run()
