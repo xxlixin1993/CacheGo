@@ -22,7 +22,6 @@ func main() {
 	initFrame()
 	runServer()
 	waitSignal()
-	stop()
 }
 
 // Initialize framework
@@ -84,17 +83,12 @@ func waitSignal() {
 
 	switch sig {
 	case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-		// TODO Exit smoothly
 		logging.Trace("exit...")
+		utils.GetExitList().Stop()
 	case syscall.SIGUSR1:
 		logging.Trace("catch the signal SIGUSR1")
 	default:
 		logging.Trace("signal do not know")
 	}
 
-}
-
-// Stop the program
-func stop() {
-	utils.GetExitList().Stop()
 }
