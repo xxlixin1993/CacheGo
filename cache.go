@@ -80,7 +80,7 @@ func waitSignal() {
 
 	sig := <-sigChan
 
-	logging.Trace("signal: ", sig)
+	logging.TraceF("signal: %d", sig)
 
 	switch sig {
 	case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
