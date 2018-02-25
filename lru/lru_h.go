@@ -2,6 +2,8 @@ package lru
 
 import "container/list"
 
+var LRUCache *Cache
+
 type Cache struct {
 	// Max entry length, 0 means no limit.
 	maxEntryLen int

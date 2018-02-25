@@ -12,6 +12,7 @@ import (
 	"github.com/xxlixin1993/CacheGo/logging"
 	"github.com/xxlixin1993/CacheGo/server"
 	"github.com/xxlixin1993/CacheGo/utils"
+	"github.com/xxlixin1993/CacheGo/lru"
 )
 
 const (
@@ -54,6 +55,9 @@ func initFrame() {
 		fmt.Printf("Initialize log error : %s", logErr)
 		os.Exit(configure.KInitLogError)
 	}
+
+	// Initialize LRU cache, TODO length change to memory
+	lru.InitCache(0)
 
 	logging.Trace("Initialized frame")
 }

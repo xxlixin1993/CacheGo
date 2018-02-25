@@ -1,9 +1,7 @@
 package server
 
 import (
-	"net"
 	"net/http"
-	"sync"
 )
 
 const KHttpServerModuleName = "httpServerModule"

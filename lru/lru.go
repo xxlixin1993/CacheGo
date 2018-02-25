@@ -5,6 +5,11 @@ import (
 	"github.com/xxlixin1993/CacheGo/logging"
 )
 
+// Initialize cache module
+func InitCache(maxEntryLen int) {
+	LRUCache = NewCache(maxEntryLen)
+}
+
 // Create a new Cache struct.
 func NewCache(maxEntryLen int) *Cache {
 	return &Cache{
