@@ -1,13 +1,37 @@
 package distributed
 
 import (
+	"errors"
 	"hash/crc32"
 	"sort"
 	"strconv"
+
+	"github.com/xxlixin1993/CacheGo/configure"
 )
 
-func NewContainer(virtualNodes int, fn HashFunc) *Container {
-	c := &Container{
+// Initialize consistent hash container
+func InitConsistentHash(fn HashFunc) error {
+	virtualNodes := configure.DefaultInt("hash.virtualNode", 0)
+	hashContainer = NewHashContainer(virtualNodes, fn)
+
+	nodeNum := configure.DefaultInt("node.number", 0)
+	for i := 0; i < nodeNum; i++ {
+		nodeName := configure.DefaultString("hash.node."+string(i)+"host", "")
+		weight := configure.DefaultInt("hash.node."+string(i)+"weight", 0)
+		if nodeName == "" || weight == 0 {
+			return errors.New("node host or weight can not be empty in node config")
+		}
+
+		hashContainer.Add(&ContainerNode{
+			nodeName: nodeName,
+			weight:   weight,
+		})
+	}
+	return nil
+}
+
+func NewHashContainer(virtualNodes int, fn HashFunc) *HashContainer {
+	c := &HashContainer{
 		virtual:  virtualNodes,
 		hashFunc: fn,
 		hashMap:  make(map[int]string),
@@ -19,7 +43,7 @@ func NewContainer(virtualNodes int, fn HashFunc) *Container {
 }
 
 // Add nodes to the hashMap
-func (c *Container) Add(nodes ...*ContainerNode) {
+func (c *HashContainer) Add(nodes ...*ContainerNode) {
 	for i := 0; i < c.virtual; i++ {
 		for _, node := range nodes {
 			hash := int(c.hashFunc([]byte(strconv.Itoa(i) + node.nodeName)))
@@ -36,7 +60,7 @@ func (c *Container) Add(nodes ...*ContainerNode) {
 }
 
 // Find the search cache key in the hashMap
-func (c *Container) Get(key string) string {
+func (c *HashContainer) Get(key string) string {
 	if c.IsEmpty() {
 		return ""
 	}
@@ -54,6 +78,8 @@ func (c *Container) Get(key string) string {
 }
 
 // Return the container whether empty or not
-func (c *Container) IsEmpty() bool {
+func (c *HashContainer) IsEmpty() bool {
 	return len(c.nodes) == 0
 }
+
+// TODO Resolve adding or removing nodes while running

@@ -1,11 +1,11 @@
 package distributed
 
-const KVirtualNodes = 40
+var hashContainer *HashContainer
 
 // Hash function can be customized
 type HashFunc func(data []byte) uint32
 
-type Container struct {
+type HashContainer struct {
 	virtual  int
 	nodes    []int
 	hashMap  map[int]string

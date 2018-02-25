@@ -9,10 +9,11 @@ import (
 	"syscall"
 
 	"github.com/xxlixin1993/CacheGo/configure"
+	"github.com/xxlixin1993/CacheGo/distributed"
 	"github.com/xxlixin1993/CacheGo/logging"
+	"github.com/xxlixin1993/CacheGo/lru"
 	"github.com/xxlixin1993/CacheGo/server"
 	"github.com/xxlixin1993/CacheGo/utils"
-	"github.com/xxlixin1993/CacheGo/lru"
 )
 
 const (
@@ -58,6 +59,9 @@ func initFrame() {
 
 	// Initialize LRU cache, TODO length change to memory
 	lru.InitCache(0)
+
+	// Initialize consistent hash container
+	distributed.InitConsistentHash(nil)
 
 	logging.Trace("Initialized frame")
 }
