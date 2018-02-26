@@ -13,6 +13,7 @@ func outputHttp(w http.ResponseWriter, data string) {
 
 // Send Http request. TODO protobuf
 func sendHttpRemoteNode(url string) (response string, err error) {
+	// TODO not return 404 and some error
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
