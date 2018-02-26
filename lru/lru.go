@@ -51,10 +51,10 @@ func (c *Cache) Add(key string, value string) bool {
 
 // Get the value of the specified index
 // Return find value and success or not
-func (c *Cache) Get(key string) (value interface{}, success bool) {
+func (c *Cache) Get(key string) (value string, success bool) {
 	if c.cache == nil {
 		logging.Error("[LRU] Get: plz create cache first")
-		return nil, false
+		return "", false
 	}
 
 	// Judge whether it exists or not
@@ -63,7 +63,7 @@ func (c *Cache) Get(key string) (value interface{}, success bool) {
 		return le.Value.(*entry).value, true
 	}
 
-	return nil, false
+	return "", false
 }
 
 // Delete the provided key from the cache.
