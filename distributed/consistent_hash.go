@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/xxlixin1993/CacheGo/configure"
+	"github.com/xxlixin1993/CacheGo/logging"
 )
 
 // Initialize hash ring container
@@ -18,12 +19,12 @@ func InitHashRingConsistent(fn HashFunc) error {
 
 	for i := 1; i <= nodeNum; i++ {
 		stringI := strconv.Itoa(i)
-		nodeName := configure.DefaultString("hash.node."+stringI+".host", "")
+		nodeName := configure.DefaultString("hash.node."+stringI+".addr", "")
 		weight := configure.DefaultInt("hash.node."+stringI+".weight", 0)
 
 		if nodeName == "" || weight == 0 {
 			return errors.New("node host or weight can not be empty in node config. " +
-				"node name hash.node." + stringI + "host")
+				"node name hash.node." + stringI + "addr")
 		}
 
 		hashRing.Add(&ContainerNode{
@@ -72,11 +73,12 @@ func (c *HashRing) Get(key string) string {
 	hash := int(c.hashFunc([]byte(key)))
 
 	idx := sort.SearchInts(c.nodes, hash)
-
 	// Cycled back
 	if idx == len(c.nodes) {
 		idx = 0
 	}
+
+	logging.DebugF("[GET] key(%v) node(%v)", key, c.hashMap[c.nodes[idx]])
 
 	return c.hashMap[c.nodes[idx]]
 }

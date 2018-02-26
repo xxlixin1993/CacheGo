@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"fmt"
 	"github.com/xxlixin1993/CacheGo/configure"
 	"github.com/xxlixin1993/CacheGo/distributed"
 	"github.com/xxlixin1993/CacheGo/logging"
@@ -16,8 +17,8 @@ import (
 
 // Initialize http server
 func initHttpServer() error {
-	host := configure.DefaultString("http.host", "0.0.0.0")
-	port := configure.DefaultString("http.port", "12345")
+	host := configure.DefaultString("host", "0.0.0.0")
+	port := configure.DefaultString("port", "12345")
 	readTimeout := configure.DefaultInt("http.read_timeout", 4)
 	writeTimeout := configure.DefaultInt("http.write_timeout", 3)
 	socketLink := host + ":" + port
@@ -85,11 +86,13 @@ func status(w http.ResponseWriter, r *http.Request) {
 
 // Get the item in the cache
 func get(w http.ResponseWriter, r *http.Request) {
-	selfHashNode := configure.DefaultString("hash.self", "127.0.0.1")
+	selfHashNode := configure.DefaultString("host", "127.0.0.1") + ":" +
+		configure.DefaultString("port", "12345")
+
 	r.ParseForm()
 	key := r.Form.Get("key")
-	node := distributed.GetHashRing()
 
+	node := distributed.GetHashRing()
 	if node == nil {
 		outputHttp(w, "Plz init hash ring first")
 	}
@@ -109,8 +112,10 @@ func get(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// Remote node
-		cmdUrl := "http://" + nodeName + KGetHttpUrl
+		cmdUrl := "http://" + nodeName + KGetHttpUrl + "?key=" + key
 		response, err := sendHttpRemoteNode(cmdUrl)
+		fmt.Println(cmdUrl)
+		fmt.Println(response, err)
 		if err != nil {
 			logging.ErrorF("[http] sendHttpRemoteNode error(%s)", err)
 			outputHttp(w, "0")
@@ -121,7 +126,8 @@ func get(w http.ResponseWriter, r *http.Request) {
 
 // Set the item in the cache
 func set(w http.ResponseWriter, r *http.Request) {
-	selfHashNode := configure.DefaultString("hash.self", "127.0.0.1")
+	selfHashNode := configure.DefaultString("host", "127.0.0.1") + ":" +
+		configure.DefaultString("port", "12345")
 
 	r.ParseForm()
 	key := r.Form.Get("key")
@@ -149,7 +155,7 @@ func set(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// Remote node
-		cmdUrl := "http://" + nodeName + KSetHttpUrl
+		cmdUrl := "http://" + nodeName + KSetHttpUrl + "?key=" + key + "&value=" + value
 		response, err := sendHttpRemoteNode(cmdUrl)
 		if err != nil {
 			logging.ErrorF("[http] sendHttpRemoteNode error(%s)", err)
@@ -161,7 +167,8 @@ func set(w http.ResponseWriter, r *http.Request) {
 
 // Delete the item in the cache
 func del(w http.ResponseWriter, r *http.Request) {
-	selfHashNode := configure.DefaultString("hash.self", "127.0.0.1")
+	selfHashNode := configure.DefaultString("host", "127.0.0.1") + ":" +
+		configure.DefaultString("port", "12345")
 	r.ParseForm()
 	key := r.Form.Get("key")
 	node := distributed.GetHashRing()
@@ -184,7 +191,7 @@ func del(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// Remote node
-		cmdUrl := "http://" + nodeName + KDelHttpUrl
+		cmdUrl := "http://" + nodeName + KDelHttpUrl + "?key=" + key
 		response, err := sendHttpRemoteNode(cmdUrl)
 		if err != nil {
 			logging.ErrorF("[http] sendHttpRemoteNode error(%s)", err)
