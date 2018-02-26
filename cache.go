@@ -60,8 +60,13 @@ func initFrame() {
 	// Initialize LRU cache, TODO length change to memory
 	lru.InitCache(0)
 
-	// Initialize consistent hash container
-	distributed.InitConsistentHash(nil)
+	// Initialize hash ring container
+	hashRingErr := distributed.InitHashRingConsistent(nil)
+	if hashRingErr != nil {
+		fmt.Printf("Initialize hashRing error : %s", hashRingErr)
+		os.Exit(configure.KInitHashRingError)
+	}
+
 
 	logging.Trace("Initialized frame")
 }
