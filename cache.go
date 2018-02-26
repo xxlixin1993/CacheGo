@@ -67,7 +67,6 @@ func initFrame() {
 		os.Exit(configure.KInitHashRingError)
 	}
 
-
 	logging.Trace("Initialized frame")
 }
 
@@ -80,7 +79,7 @@ func runServer() {
 func startServer() {
 	serverErr := server.StartServer()
 	if serverErr != nil {
-		fmt.Printf("Start server error : %s", serverErr)
+		fmt.Printf("server error(%s)", serverErr)
 		os.Exit(configure.KInitSeverError)
 	}
 }
@@ -103,5 +102,4 @@ func waitSignal() {
 	default:
 		logging.Trace("signal do not know")
 	}
-
 }

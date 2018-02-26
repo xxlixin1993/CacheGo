@@ -26,6 +26,7 @@ const (
 	KInitLogError
 	KInitTcpServerError
 	KInitSeverError
+	KInitHashRingError
 )
 
 // Error message
