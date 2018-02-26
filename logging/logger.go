@@ -107,7 +107,7 @@ func Debug(args ...interface{}) {
 }
 
 func DebugF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelDebug, msg)
 }
 
@@ -117,7 +117,7 @@ func Trace(args ...interface{}) {
 }
 
 func TraceF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelTrace, msg)
 }
 
@@ -127,7 +127,7 @@ func Info(args ...interface{}) {
 }
 
 func InfoF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelInfo, msg)
 }
 func Notice(args ...interface{}) {
@@ -136,7 +136,7 @@ func Notice(args ...interface{}) {
 }
 
 func NoticeF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelNotice, msg)
 }
 
@@ -146,7 +146,7 @@ func Warning(args ...interface{}) {
 }
 
 func WarningF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelWarnning, msg)
 }
 
@@ -156,7 +156,7 @@ func Error(args ...interface{}) {
 }
 
 func ErrorF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelError, msg)
 }
 
@@ -166,6 +166,6 @@ func Fatal(args ...interface{}) {
 }
 
 func FatalF(format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a)
+	msg := fmt.Sprintf(format, a...)
 	GetLogger().Output(KLevelFatal, msg)
 }
