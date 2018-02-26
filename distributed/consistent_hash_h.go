@@ -1,11 +1,11 @@
 package distributed
 
-var hashContainer *HashContainer
+var hashRing *HashRing
 
 // Hash function can be customized
 type HashFunc func(data []byte) uint32
 
-type HashContainer struct {
+type HashRing struct {
 	virtual  int
 	nodes    []int
 	hashMap  map[int]string

@@ -9,20 +9,24 @@ import (
 	"github.com/xxlixin1993/CacheGo/configure"
 )
 
-// Initialize consistent hash container
-func InitConsistentHash(fn HashFunc) error {
-	virtualNodes := configure.DefaultInt("hash.virtualNode", 0)
-	hashContainer = NewHashContainer(virtualNodes, fn)
+// Initialize hash ring container
+func InitHashRingConsistent(fn HashFunc) error {
+	virtualNodes := configure.DefaultInt("hash.virtual_node", 0)
+	hashRing = NewHashContainer(virtualNodes, fn)
 
 	nodeNum := configure.DefaultInt("node.number", 0)
-	for i := 0; i < nodeNum; i++ {
-		nodeName := configure.DefaultString("hash.node."+string(i)+"host", "")
-		weight := configure.DefaultInt("hash.node."+string(i)+"weight", 0)
+
+	for i := 1; i <= nodeNum; i++ {
+		stringI := strconv.Itoa(i)
+		nodeName := configure.DefaultString("hash.node."+stringI+".host", "")
+		weight := configure.DefaultInt("hash.node."+stringI+".weight", 0)
+
 		if nodeName == "" || weight == 0 {
-			return errors.New("node host or weight can not be empty in node config")
+			return errors.New("node host or weight can not be empty in node config. " +
+				"node name hash.node." + stringI + "host")
 		}
 
-		hashContainer.Add(&ContainerNode{
+		hashRing.Add(&ContainerNode{
 			nodeName: nodeName,
 			weight:   weight,
 		})
@@ -30,8 +34,8 @@ func InitConsistentHash(fn HashFunc) error {
 	return nil
 }
 
-func NewHashContainer(virtualNodes int, fn HashFunc) *HashContainer {
-	c := &HashContainer{
+func NewHashContainer(virtualNodes int, fn HashFunc) *HashRing {
+	c := &HashRing{
 		virtual:  virtualNodes,
 		hashFunc: fn,
 		hashMap:  make(map[int]string),
@@ -43,7 +47,7 @@ func NewHashContainer(virtualNodes int, fn HashFunc) *HashContainer {
 }
 
 // Add nodes to the hashMap
-func (c *HashContainer) Add(nodes ...*ContainerNode) {
+func (c *HashRing) Add(nodes ...*ContainerNode) {
 	for i := 0; i < c.virtual; i++ {
 		for _, node := range nodes {
 			hash := int(c.hashFunc([]byte(strconv.Itoa(i) + node.nodeName)))
@@ -60,7 +64,7 @@ func (c *HashContainer) Add(nodes ...*ContainerNode) {
 }
 
 // Find the search cache key in the hashMap
-func (c *HashContainer) Get(key string) string {
+func (c *HashRing) Get(key string) string {
 	if c.IsEmpty() {
 		return ""
 	}
@@ -78,8 +82,17 @@ func (c *HashContainer) Get(key string) string {
 }
 
 // Return the container whether empty or not
-func (c *HashContainer) IsEmpty() bool {
+func (c *HashRing) IsEmpty() bool {
 	return len(c.nodes) == 0
+}
+
+// Return the hashRing instance
+func GetHashRing() *HashRing {
+	if hashRing == nil {
+		return nil
+	}
+
+	return hashRing
 }
 
 // TODO Resolve adding or removing nodes while running
