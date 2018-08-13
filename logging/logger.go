@@ -12,7 +12,7 @@ import (
 
 // Initialize Log
 func InitLog() error {
-	outputType := configure.DefaultString("log.type", KOutputStdout)
+	outputType := configure.DefaultString("log.output", KOutputStdout)
 	level := configure.DefaultInt("log.level", KLevelDebug)
 
 	logger, err := createLogger(outputType, level)
